@@ -153,6 +153,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         shell_exec("sudo /etc/init.d/apache2 restart");
     }
 
+    //this figures out what the craft installation was named and restores it
+    if (isset($data ["restore"])) {
+        $content = scandir("/var/www/html");
+        foreach ($content as $entry) {
+            if (is_dir($entry) && $entry != "." && $entry != ".." && $entry != "vendor") {
+                $restoreprojectname = $entry;
+            }
+        }
+        file_put_contents("/var/www/html/setup",$restoreprojectname);
+        shell_exec("sudo /etc/init.d/apache2 restart");
+    }
+
 
 }
 
@@ -160,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
 //-------SECTION-----web-pages------Method:NOT>POST----------
-// the web pages were created by chatgpt
+// the web pages were created with the help of chatgpt
 function welcomepage(){
     echo <<<WELCOMEPAGE
     <style>
@@ -203,7 +215,7 @@ function welcomepage(){
     .checkbox-label input {
         margin-right: 0.625em;
     }
-    .start-button {
+    .button {
         background-color: #007BFF;
         color: #fff;
         border: none;
@@ -212,7 +224,7 @@ function welcomepage(){
         cursor: pointer;
         font-size: 1.125em;
     }
-    .start-button:hover {
+    .button:hover {
         background-color: #0056b3;
     }
     button[disabled=disabled], button:disabled {
@@ -220,6 +232,25 @@ function welcomepage(){
         color: #666;
         cursor: not-allowed;
     }
+
+    #restore-button{
+        position: absolute;
+        top: 90vh;
+        right: 50px;
+        font-size: 0.9em;
+        background-color: lightblue;
+        color: #fff;
+        border: none;
+        padding: 0.625em 1.25em;
+        border-radius: 0.5em;
+        cursor: pointer;
+    }
+
+    #restore-button:hover{
+        background-color: #0056b3;
+    }
+
+
     </style>
     <div class="progress-bar"></div>
     <div class="container">
@@ -232,8 +263,9 @@ function welcomepage(){
             <input type="checkbox" id="development-checkbox">
             I understand that this assistant is for development use only, not for production.
         </label>
-        <button class="start-button" id="start-button" disabled onclick="checkForInstallation()">Start Installation</button>
+        <button class="button" id="start-button" disabled onclick="checkForInstallation()">Start Installation</button>
     </div>
+    <button id="restore-button" onclick="restore()">Restore Project</button>
     <script>
     document.getElementById("development-checkbox").addEventListener("change", function() {
         var startButton = document.getElementById("start-button");
@@ -268,6 +300,33 @@ function welcomepage(){
             setTimeout(fetchifinstalled, 10000);
         });
     };
+
+
+    function restore(){
+        showLoadingPopup("Restoring project")
+        fetch('index.php', {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "restore": true})
+        })
+        .then(response => response.json())
+        .then(response => {
+                if(response == true){
+                    setTimeout(function() {
+                        window.location.href = "/";
+                    }, 20000);
+                }
+            }
+        )
+        .catch(error => {
+            setTimeout(function() {
+                window.location.href = "/";
+            }, 20000);
+        });
+    }
 
     </script>
     WELCOMEPAGE;
@@ -340,13 +399,27 @@ function projectsetup(){
                 options.style.display = "none";
             }
         }
-        function checkforproject(){
-            projectname = document.getElementById("project-name").value
-
-            if(! validateInput(projectname)){
-                return
+        function validateInput(input) {
+            return /^[a-zA-Z0-9]+$/.test(input);
+        }
+    
+        function toggleAdvancedOptions() {
+            var options = document.querySelector(".advanced-options");
+            if (options.style.display === "none" || options.style.display === "") {
+                options.style.display = "block";
+            } else {
+                options.style.display = "none";
             }
-
+        }
+    
+        function checkforproject() {
+            projectname = document.getElementById("project-name").value;
+    
+            if (!validateInput(projectname)) {
+                alert("Project name must not contain spaces or special characters.");
+                return;
+            }
+    
             fetch('index.php', {
                 method: "POST",
                 headers: {
@@ -355,60 +428,59 @@ function projectsetup(){
                 },
                 body: JSON.stringify({ "uniqueproject": projectname })
             })
-            .then(response => response.json())
-            .then(response => {
-                    if(response == true){
-                        createproject(projectname)
-                    }else{
-                        alert("cannot create project - project already exists")
+                .then(response => response.json())
+                .then(response => {
+                    if (response == true) {
+                        createproject(projectname);
+                    } else {
+                        alert("Cannot create project - project already exists");
                     }
-                }
-            )
-            .catch(error => {
-                window.location = "index.php?page=help"
-            });
+                })
+                .catch(error => {
+                    window.location = "index.php?page=help";
+                });
         }
     
-        function createproject(projectname){
+        function createproject(projectname) {
             showLoadingPopup("Creating your craft project");
-            dbdriver = document.getElementById("db-driver").value
-            dbserver = document.getElementById("db-server").value
-            dbport = document.getElementById("db-port").value
-            dbdatabase = document.getElementById("db-database").value
-            dbuser = document.getElementById("db-user").value
-            dbpassword = document.getElementById("db-password").value
-            dbschema = document.getElementById("db-schema").value
-            dbtableprefix = document.getElementById("db-table-prefix").value
+        
+            var dbdriver = document.getElementById("db-driver").value;
+            var dbserver = document.getElementById("db-server").value;
+            var dbport = document.getElementById("db-port").value;
+            var dbdatabase = document.getElementById("db-database").value;
+            var dbuser = document.getElementById("db-user").value;
+            var dbpassword = document.getElementById("db-password").value;
+            var dbschema = document.getElementById("db-schema").value;
+            var dbtableprefix = document.getElementById("db-table-prefix").value;
         
             fetch('index.php', {
                 method: "POST",
                 headers: {
-                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ "buildcraft": true,
-                                        "projectname": projectname,
-                                        "dbdriver": dbdriver,
-                                        "dbserver": dbserver,
-                                        "dbport": dbport,
-                                        "dbdatabase": dbdatabase,
-                                        "dbuser": dbuser,
-                                        "dbpassword": dbpassword,
-                                        "dbschema": dbschema,
-                                        "dbtableprefix": dbtableprefix
-                                        })
+                body: JSON.stringify({
+                    buildcraft: true,
+                    projectname: projectname,
+                    dbdriver: dbdriver,
+                    dbserver: dbserver,
+                    dbport: dbport,
+                    dbdatabase: dbdatabase,
+                    dbuser: dbuser,
+                    dbpassword: dbpassword,
+                    dbschema: dbschema,
+                    dbtableprefix: dbtableprefix
+                })
             })
             .then(response => response.json())
             .then(response => {
-                    if(response == true){
-                        window.location = "index.php?page=projectconfig&projectname=" + projectname
-                    }else{
-                            window.location = "index.php?page=help"
-                    }
+                if (response === true) {
+                    window.location = "index.php?page=projectconfig&projectname=" + projectname;
+                } else {
+                    window.location = "index.php?page=help";
                 }
-            )
+            })
             .catch(error => {
-                window.location = "index.php?page=help"
+                window.location = "index.php?page=help";
             });
         }
     </script>
@@ -492,6 +564,8 @@ function projectconfig(){
             color: #666;
         }
         .form-group {
+            display: flex;
+            justify-content: center;
             margin: 1.25em 0;
             position: relative;
         }
@@ -502,9 +576,8 @@ function projectconfig(){
             border: 2px solid #ff0000;
         }
         .info-box {
-            position: absolute;
-            top: 0;
-            right: -1.25em;
+            color: white;
+            margin-left: 2rem;
             width: 1em;
             height: 1em;
             background-color: #007BFF;
@@ -549,26 +622,48 @@ function projectconfig(){
     <script>
         function validateForm() {
             var emailInput = document.getElementById("mail-address");
+            var usernameInput = document.getElementById("username");
             var passwordInput = document.getElementById("password");
+            var sitenameInput = document.getElementById("sitename");
             var startButton = document.getElementById("start-button");
-
+        
             var isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
             var isPasswordValid = passwordInput.value.length >= 6;
-
-            if (isValidEmail && isPasswordValid) {
+            var isUsernameValid = /^[a-zA-Z0-9\-]+$/.test(usernameInput.value);
+            var isSitenameValid = /^[a-zA-Z0-9\-]+$/.test(sitenameInput.value);
+        
+            if (isValidEmail && isPasswordValid && isUsernameValid && isSitenameValid) {
                 startButton.removeAttribute("disabled");
                 emailInput.classList.remove("input-error");
                 passwordInput.classList.remove("input-error");
+                usernameInput.classList.remove("input-error");
+                sitenameInput.classList.remove("input-error");
             } else {
                 startButton.setAttribute("disabled", "true");
                 emailInput.classList.remove("input-error");
                 passwordInput.classList.remove("input-error");
+                usernameInput.classList.remove("input-error");
+                sitenameInput.classList.remove("input-error");
+        
+
+                if (!isValidEmail) {
+                    emailInput.classList.add("input-error");
+                }
+                if (!isPasswordValid) {
+                    passwordInput.classList.add("input-error");
+                }
+                if (!isUsernameValid) {
+                    usernameInput.classList.add("input-error");
+                }
+                if (!isSitenameValid) {
+                    sitenameInput.classList.add("input-error");
+                }
             }
         }
+    
 
         function configurecraft(){
             showLoadingPopup('setting up your craft website')
-            //projectname is already set
             mail = document.getElementById("mail-address").value
             username = document.getElementById("username").value
             password = document.getElementById("password").value
@@ -614,7 +709,10 @@ function projectconfig(){
         </div>
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" id="username">
+            <input type="text" id="username" oninput="validateForm()">
+            <div class="info-box">?
+                <span class="info-text">No special character allowed</span>
+            </div>
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
@@ -625,14 +723,24 @@ function projectconfig(){
         </div>
         <div class="form-group">
             <label for="sitename">Site Name:</label>
-            <input type="text" id="sitename">
+            <input type="text" id="sitename" oninput="validateForm()">
+            <div class="info-box">?
+                <span class="info-text">No special character allowed</span>
+            </div>
         </div>
         <div class="form-group">
             <label for="language">Language:</label>
             <select id="language">
-                <option value="en-US" selected>en-US</option>
-                <option value="de-DE">de-DE</option>
-                <!-- Weitere ISO-Sprachcodes hier einfügen -->
+            <option value="de-DE" selected>German (Germany)</option>
+            <option value="en-US">English (US)</option>
+            <option value="es-ES">Spanish (Spain)</option>
+            <option value="fr-FR">French (France)</option>
+            <option value="it-IT">Italian (Italy)</option>
+            <option value="nl-NL">Dutch (Netherlands)</option>
+            <option value="pl-PL">Polish (Poland)</option>
+            <option value="tr-TR">Turkish (Turkey)</option>
+            <option value="ru-RU">Russian (Russia)</option>
+            <option value="pt-PT">Portuguese (Portugal)</option>
             </select>
         </div>
         <button class="start-button" id="start-button" onclick="configurecraft()" disabled>Create Craft Project</button>
@@ -898,13 +1006,11 @@ if ($_SERVER['REQUEST_METHOD'] != "POST") {
         }
 
         function validateInput(input) {
-            // Prüfe, ob die Eingabe leer ist
             if (input.trim() === "") {
                 alert("input must not be empty");
                 return false;
             }
 
-            // Prüfe, ob die Eingabe nur Buchstaben von a bis z (klein- und großgeschrieben) enthält
             const regex = /^[a-zA-Z\-]+$/;
             if (!regex.test(input)) {
                 alert("only characters a-z / A-Z allowed");
