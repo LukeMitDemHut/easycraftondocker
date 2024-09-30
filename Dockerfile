@@ -53,7 +53,6 @@ RUN echo '#!/bin/sh' > /home/craft/start.sh && \
     echo '    if [ -f "/var/www/html/setup" ]; then' >> /home/craft/start.sh && \
     echo '        project=`cat /var/www/html/setup`' >> /home/craft/start.sh && \
     echo '        sudo /usr/bin/sed -i "s|DocumentRoot /var/www/html|DocumentRoot /var/www/html/$project/web|" /etc/apache2/sites-available/000-default.conf' >> /home/craft/start.sh && \
-    echo '        rm /var/www/html/setup' >> /home/craft/start.sh && \
     echo '    fi' >> /home/craft/start.sh && \
     echo 'else' >> /home/craft/start.sh && \
     echo '    sudo service apache2 start' >> /home/craft/start.sh && \
