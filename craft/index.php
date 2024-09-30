@@ -125,6 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         file_put_contents("$env_filepath", $env);
         shell_exec("echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
+        // delete vendor folder, composer.json and composer.lock
+        shell_exec("rm -rf /var/www/html/vendor");
+        shell_exec("rm /var/www/html/composer.json");
+        shell_exec("rm /var/www/html/composer.lock");
+
 
         echo(json_encode(true));
     }
