@@ -12,6 +12,7 @@ A streamlined solution to install CraftCMS using Docker. This installer is inten
 - [Packaging a Craft Project](#packaging-a-craft-project)
 - [Restoring a Craft Project](#restoring-a-craft-project)
 - [Known Limitations](#known-limitations)
+- [FAQ](#faq)
 - [Bug Reports](#bug-reports)
 
 ## Requirements
@@ -110,7 +111,7 @@ If CraftCMS is already installed:
 ## Collaborating on a Craft Project
 
 To collaborate on a CraftCMS project:
-- Use GitHub or other version control systems to sync the project files.
+- Use Git(Hub) or other version control systems to sync the project files.
 - **Do not sync the `data` folder**. Instead, use a hosted database solution to share the database.
 - Alternatively, package the project (see the next section) and share it with your collaborator.
 
@@ -142,6 +143,91 @@ This installer is **not suitable** for production environments due to:
 - The `www-data` user having elevated permissions.
 
 Read more about these limitations in the [Production Environment](#known-limitations) section.
+
+## FAQ
+
+### How do I access my CraftCMS site?
+
+Once installed, you can access your site by:
+- Navigating to `http://localhost:3380` in a browser.
+- Alternatively, in Docker, click on the three dots next to the Craft PHP container and select **Open in Browser**.
+
+### How do I access the admin panel of my site?
+
+Follow the same steps to access your site, and add `/admin` to the URL:
+- `http://localhost:3380/admin`
+
+### Where can I find the site’s files?
+
+Your CraftCMS files are located in the directory from which you ran the `docker-compose up` command:
+- **Files**: `craft` directory under a folder with your project’s name.
+- **Database**: `data` folder under the installation directory.
+
+In the container, the files are located in `/var/www/html`.
+
+### How do I create a filesystem in CraftCMS?
+
+To create a filesystem in CraftCMS:
+- Go to **Settings** > **Filesystems**.
+- For **Basepath**, use the container's path (not the host system's). For example, use `@webroot/my-folder/subfolder`.
+
+### How do I increase the upload limit?
+
+If you haven't installed Craft yet:
+- Open the `Dockerfile` and modify lines 66 and 67 to adjust the upload size in megabytes.
+
+If CraftCMS is already installed:
+1. Open the Craft PHP container's CLI in Docker.
+2. Run:
+    ```bash
+    cd /usr/local/etc/php
+    sudo sed -i "s/^upload_max_filesize = .*/upload_max_filesize = ?M/" "php.ini"
+    sudo sed -i "s/^post_max_size = .*/post_max_size = ?M/" "php.ini"
+    ```
+
+### What should I do if the installation fails?
+
+Follow these steps:
+1. Stop the containers using:
+    ```bash
+    docker-compose down
+    ```
+2. Delete the following files/folders:
+    - `composer.json`, `composer.lock`, `vendor` folder, project folder (your project’s name), `setup`, and `installed`.
+3. Restart your computer and repeat the installation.
+
+### What are my database login details?
+
+The installer sets up a default database:
+- **Username**: `root`
+- **Password**: `cr4ftd4t4b4s3`
+- **Database Name**: `craftdb`
+- **IP Address**: `10.80.0.11`
+- **Host Port**: `3381`
+- **Container Port**: `3306`
+
+### How do I open PHPMyAdmin?
+
+PHPMyAdmin is installed by default. Access it similarly to the CraftCMS site:
+- Navigate to `http://localhost:3381` or find the PHPMyAdmin container in Docker and open it in the browser.
+
+### How can I collaborate with others on a CraftCMS project?
+
+Use version control systems like GitHub to sync files (except the `data` folder). For collaboration, you may also use an external database that both parties can connect to.
+
+### How do I package a Craft project for distribution?
+
+Zip the following files and folders:
+- `Dockerfile`, `docker-compose.yml`, `data` folder, `craft` folder (with `vendor` and project folder).
+Make sure the directory structure remains intact.
+
+### How do I restore a Craft project?
+
+Extract the received `.zip` archive, follow the installation steps, and choose **Restore Project** instead of a new installation.
+
+### Can I customize the database configuration?
+
+Yes, modify the `docker-compose.yml` file to change database credentials or link to an external database. Update the advanced database settings in the installer during setup.
 
 ## Bug Reports
 
