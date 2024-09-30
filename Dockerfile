@@ -4,7 +4,7 @@
 #
 
 # using the official php apache image
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # set the php max upload size to 32mb and max exec time to 600
 RUN echo "upload_max_filesize = 32M" >> /usr/local/etc/php/php.ini && \
