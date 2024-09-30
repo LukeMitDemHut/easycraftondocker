@@ -534,217 +534,229 @@ function projectsetup(){
 
 function projectconfig(){
     echo <<<PROJECTCONFIG
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-        .progress-bar {
-            background-color: #007BFF;
-            height: 8px;
-            width: 75%;
-        }
-        .container {
-            max-width: 50em;
-            margin: 2em auto;
-            padding: 1.25em;
-            background-color: #fff;
-            box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
-            border-radius: 0.5em;
-            text-align: center;
-        }
-        h1 {
-            font-size: 1.5em;
-            color: #333;
-        }
-        p {
-            font-size: 1em;
-            color: #666;
-        }
-        .form-group {
-            display: flex;
-            justify-content: center;
-            margin: 1.25em 0;
-            position: relative;
-        }
-        .form-group label {
-            font-weight: bold;
-        }
-        .input-error {
-            border: 2px solid #ff0000;
-        }
-        .info-box {
-            color: white;
-            margin-left: 2rem;
-            width: 1em;
-            height: 1em;
-            background-color: #007BFF;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-        .info-box:hover .info-text {
-            display: block;
-        }
-        .info-text {
-            display: none;
-            position: absolute;
-            background-color: #007BFF;
-            color: #fff;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25em;
-            right: 1.5em;
-            top: 1em;
-            width: 10em;
-            text-align: left;
-        }
-        .start-button {
-            background-color: #007BFF;
-            color: #fff;
-            border: none;
-            padding: 0.625em 1.25em;
-            border-radius: 0.5em;
-            cursor: pointer;
-            font-size: 1.125em;
-        }
-        .start-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .start-button:hover:disabled {
-            background-color: #ccc;
-        }
-    </style>
-    <script>
-        function validateForm() {
-            var emailInput = document.getElementById("mail-address");
-            var usernameInput = document.getElementById("username");
-            var passwordInput = document.getElementById("password");
-            var sitenameInput = document.getElementById("sitename");
-            var startButton = document.getElementById("start-button");
-        
-            var isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-            var isPasswordValid = passwordInput.value.length >= 6;
-            var isUsernameValid = /^[a-zA-Z0-9\-]+$/.test(usernameInput.value);
-            var isSitenameValid = /^[a-zA-Z0-9\-]+$/.test(sitenameInput.value);
-        
-            if (isValidEmail && isPasswordValid && isUsernameValid && isSitenameValid) {
-                startButton.removeAttribute("disabled");
-                emailInput.classList.remove("input-error");
-                passwordInput.classList.remove("input-error");
-                usernameInput.classList.remove("input-error");
-                sitenameInput.classList.remove("input-error");
-            } else {
-                startButton.setAttribute("disabled", "true");
-                emailInput.classList.remove("input-error");
-                passwordInput.classList.remove("input-error");
-                usernameInput.classList.remove("input-error");
-                sitenameInput.classList.remove("input-error");
-        
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f5f5f5;
+                    margin: 0;
+                    padding: 0;
+                }
+                .progress-bar {
+                    background-color: #007BFF;
+                    height: 8px;
+                    width: 75%;
+                }
+                .container {
+                    max-width: 50em;
+                    margin: 2em auto;
+                    padding: 1.25em;
+                    background-color: #fff;
+                    box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
+                    border-radius: 0.5em;
+                    text-align: center;
+                }
+                h1 {
+                    font-size: 1.5em;
+                    color: #333;
+                }
+                p {
+                    font-size: 1em;
+                    color: #666;
+                }
+                .form-group {
+                    display: flex;
+                    justify-content: center;
+                    margin: 1.25em 0;
+                    position: relative;
+                }
+                .form-group label {
+                    font-weight: bold;
+                }
+                .input-error {
+                    border: 2px solid #ff0000;
+                }
+                .info-box {
+                    color: white;
+                    margin-left: 2rem;
+                    width: 1em;
+                    height: 1em;
+                    background-color: #007BFF;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                }
+                .info-box:hover .info-text {
+                    display: block;
+                }
+                .info-text {
+                    display: none;
+                    position: absolute;
+                    background-color: #007BFF;
+                    color: #fff;
+                    padding: 0.25em 0.5em;
+                    border-radius: 0.25em;
+                    right: 1.5em;
+                    top: 1em;
+                    width: 10em;
+                    text-align: left;
+                }
+                .start-button {
+                    background-color: #007BFF;
+                    color: #fff;
+                    border: none;
+                    padding: 0.625em 1.25em;
+                    border-radius: 0.5em;
+                    cursor: pointer;
+                    font-size: 1.125em;
+                }
+                .start-button:disabled {
+                    background-color: #ccc;
+                    cursor: not-allowed;
+                }
+                .start-button:hover:disabled {
+                    background-color: #ccc;
+                }
+            </style>
 
-                if (!isValidEmail) {
-                    emailInput.classList.add("input-error");
-                }
-                if (!isPasswordValid) {
-                    passwordInput.classList.add("input-error");
-                }
-                if (!isUsernameValid) {
-                    usernameInput.classList.add("input-error");
-                }
-                if (!isSitenameValid) {
-                    sitenameInput.classList.add("input-error");
-                }
-            }
-        }
-    
+            <script>
+                function validateForm() {
+                    var emailInput = document.getElementById("mail-address");
+                    var usernameInput = document.getElementById("username");
+                    var passwordInput = document.getElementById("password");
+                    var confirmPasswordInput = document.getElementById("confirm-password");
+                    var sitenameInput = document.getElementById("sitename");
+                    var startButton = document.getElementById("start-button");
 
-        function configurecraft(){
-            showLoadingPopup('setting up your craft website')
-            mail = document.getElementById("mail-address").value
-            username = document.getElementById("username").value
-            password = document.getElementById("password").value
-            pagename = document.getElementById("sitename").value
-            language = document.getElementById("language").value
-        
-            fetch('index.php', {
-                method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "setupcraft": true,
-                                        "projectname": projectname,
-                                        "mail": mail,
-                                        "username": username,
-                                        "password": password,
-                                        "pagename": pagename,
-                                        "language": language
-                                        })
-            })
-            .then(response => response.json())
-            .then(response => {
-                    console.log(response)
-                    window.location = "index.php?page=finished&projectname=" + projectname
-                }
-            )
-            .catch(error => {
-                window.location = "index.php?page=help"
-            });
-        }
+                    var isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+                    var isPasswordValid = passwordInput.value.length >= 6;
+                    var isPasswordConfirmed = passwordInput.value === confirmPasswordInput.value;
+                    var isUsernameValid = /^[a-zA-Z0-9\-]+$/.test(usernameInput.value);
+                    var isSitenameValid = /^[a-zA-Z0-9\-]+$/.test(sitenameInput.value);
 
-    </script>
-    <div class="progress-bar"></div>
-    <div class="container">
-        <h1>Craft CMS Configuration</h1>
-        <div class="form-group">
-            <label for="mail-address">Mail Address:</label>
-            <input type="email" id="mail-address" oninput="validateForm()">
-            <div class="info-box">?
-                <span class="info-text">Valid email format (e.g., example@example.com)</span>
+                    if (isValidEmail && isPasswordValid && isPasswordConfirmed && isUsernameValid && isSitenameValid) {
+                        startButton.removeAttribute("disabled");
+                        emailInput.classList.remove("input-error");
+                        passwordInput.classList.remove("input-error");
+                        confirmPasswordInput.classList.remove("input-error");
+                        usernameInput.classList.remove("input-error");
+                        sitenameInput.classList.remove("input-error");
+                    } else {
+                        startButton.setAttribute("disabled", "true");
+                        emailInput.classList.remove("input-error");
+                        passwordInput.classList.remove("input-error");
+                        confirmPasswordInput.classList.remove("input-error");
+                        usernameInput.classList.remove("input-error");
+                        sitenameInput.classList.remove("input-error");
+
+                        if (!isValidEmail) {
+                            emailInput.classList.add("input-error");
+                        }
+                        if (!isPasswordValid || !isPasswordConfirmed) {
+                            passwordInput.classList.add("input-error");
+                            confirmPasswordInput.classList.add("input-error");
+                        }
+                        if (!isUsernameValid) {
+                            usernameInput.classList.add("input-error");
+                        }
+                        if (!isSitenameValid) {
+                            sitenameInput.classList.add("input-error");
+                        }
+                    }
+                }
+
+                function configurecraft(){
+                    showLoadingPopup('setting up your craft website')
+                    mail = document.getElementById("mail-address").value
+                    username = document.getElementById("username").value
+                    password = document.getElementById("password").value
+                    pagename = document.getElementById("sitename").value
+                    language = document.getElementById("language").value
+
+                    fetch('index.php', {
+                        method: "POST",
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ "setupcraft": true,
+                                                "projectname": projectname,
+                                                "mail": mail,
+                                                "username": username,
+                                                "password": password,
+                                                "pagename": pagename,
+                                                "language": language
+                                                })
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                            console.log(response)
+                            window.location = "index.php?page=finished&projectname=" + projectname
+                        }
+                    )
+                    .catch(error => {
+                        window.location = "index.php?page=help"
+                    });
+                }
+            </script>
+
+            <div class="progress-bar"></div>
+            <div class="container">
+                <h1>Craft CMS Configuration</h1>
+                <div class="form-group">
+                    <label for="mail-address">Mail Address:</label>
+                    <input type="email" id="mail-address" oninput="validateForm()">
+                    <div class="info-box">?
+                        <span class="info-text">Valid email format (e.g., example@example.com)</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" oninput="validateForm()">
+                    <div class="info-box">?
+                        <span class="info-text">No special character allowed</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" oninput="validateForm()">
+                    <div class="info-box">?
+                        <span class="info-text">Minimum 6 characters</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password:</label>
+                    <input type="password" id="confirm-password" oninput="validateForm()">
+                    <div class="info-box">?
+                        <span class="info-text">Must match the password</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="sitename">Site Name:</label>
+                    <input type="text" id="sitename" oninput="validateForm()">
+                    <div class="info-box">?
+                        <span class="info-text">No special character allowed</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="language">Language:</label>
+                    <select id="language">
+                    <option value="de-DE" selected>German (Germany)</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="es-ES">Spanish (Spain)</option>
+                    <option value="fr-FR">French (France)</option>
+                    <option value="it-IT">Italian (Italy)</option>
+                    <option value="nl-NL">Dutch (Netherlands)</option>
+                    <option value="pl-PL">Polish (Poland)</option>
+                    <option value="tr-TR">Turkish (Turkey)</option>
+                    <option value="ru-RU">Russian (Russia)</option>
+                    <option value="pt-PT">Portuguese (Portugal)</option>
+                    </select>
+                </div>
+                <button class="start-button" id="start-button" onclick="configurecraft()" disabled>Create Craft Project</button>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" oninput="validateForm()">
-            <div class="info-box">?
-                <span class="info-text">No special character allowed</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" oninput="validateForm()">
-            <div class="info-box">?
-                <span class="info-text">Minimum 6 characters</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="sitename">Site Name:</label>
-            <input type="text" id="sitename" oninput="validateForm()">
-            <div class="info-box">?
-                <span class="info-text">No special character allowed</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="language">Language:</label>
-            <select id="language">
-            <option value="de-DE" selected>German (Germany)</option>
-            <option value="en-US">English (US)</option>
-            <option value="es-ES">Spanish (Spain)</option>
-            <option value="fr-FR">French (France)</option>
-            <option value="it-IT">Italian (Italy)</option>
-            <option value="nl-NL">Dutch (Netherlands)</option>
-            <option value="pl-PL">Polish (Poland)</option>
-            <option value="tr-TR">Turkish (Turkey)</option>
-            <option value="ru-RU">Russian (Russia)</option>
-            <option value="pt-PT">Portuguese (Portugal)</option>
-            </select>
-        </div>
-        <button class="start-button" id="start-button" onclick="configurecraft()" disabled>Create Craft Project</button>
-    </div>
+
     PROJECTCONFIG;
 }
 
