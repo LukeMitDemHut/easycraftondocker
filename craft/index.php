@@ -30,7 +30,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 //-------SECTION-----Variables------Method:GET----------
 if (isset($_GET["page"])) {
     $page = $_GET["page"];
-}else{
+} else {
     $page = "welcome";
 }
 
@@ -45,30 +45,30 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
     //this checks for the initial installation of composer in html --> needed to build craft project
-    if (isset($data ["checkinstalled"])) {
-        if(file_exists("/var/www/html/installed")){
-            echo(json_encode(true));
-        }else {
-            echo(json_encode(false));
+    if (isset($data["checkinstalled"])) {
+        if (file_exists("/var/www/html/installed")) {
+            echo (json_encode(true));
+        } else {
+            echo (json_encode(false));
         }
     }
 
     //this checks if craft has been setup
-    if (isset($data ["checksetup"])) {
-        if(file_exists("checksetup")){
-            echo(json_encode(true));
-        }else{
-            echo(json_encode(false));
+    if (isset($data["checksetup"])) {
+        if (file_exists("checksetup")) {
+            echo (json_encode(true));
+        } else {
+            echo (json_encode(false));
         }
     }
 
     //this checks if the project name is unique
-    if (isset($data ["uniqueproject"])) {
-        $projectname = $data ["uniqueproject"];
-        if(! file_exists("/var/www/html/$projectname")){
-            echo(json_encode(true));
-        }else {
-            echo(json_encode(false));
+    if (isset($data["uniqueproject"])) {
+        $projectname = $data["uniqueproject"];
+        if (! file_exists("/var/www/html/$projectname")) {
+            echo (json_encode(true));
+        } else {
+            echo (json_encode(false));
         }
     }
 
@@ -76,17 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     //----------SUB-SECTION--------actions-------
 
     //This creates the craft project and dependecies and updates the db infos
-    if (isset($data ["buildcraft"])) {
+    if (isset($data["buildcraft"])) {
         //these post values must be set
-        $projectname = $data ["projectname"];
-        $CRAFT_DB_DRIVER = $data ["dbdriver"];
-        $CRAFT_DB_SERVER = $data ["dbserver"];
-        $CRAFT_DB_PORT = $data ["dbport"];
-        $CRAFT_DB_DATABASE = $data ["dbdatabase"];
-        $CRAFT_DB_USER = $data ["dbuser"];
-        $CRAFT_DB_PASSWORD = $data ["dbpassword"];
-        $CRAFT_DB_SCHEMA = $data ["dbschema"];
-        $CRAFT_DB_TABLE_PREFIX = $data ["dbtableprefix"];
+        $projectname = $data["projectname"];
+        $CRAFT_DB_DRIVER = $data["dbdriver"];
+        $CRAFT_DB_SERVER = $data["dbserver"];
+        $CRAFT_DB_PORT = $data["dbport"];
+        $CRAFT_DB_DATABASE = $data["dbdatabase"];
+        $CRAFT_DB_USER = $data["dbuser"];
+        $CRAFT_DB_PASSWORD = $data["dbpassword"];
+        $CRAFT_DB_SCHEMA = $data["dbschema"];
+        $CRAFT_DB_TABLE_PREFIX = $data["dbtableprefix"];
         $craftproject = "/var/www/html/$projectname";
         $env_filepath = "$craftproject/.env";
 
@@ -111,15 +111,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         shell_exec("echo reading .env file");
         $env = file_get_contents($env_filepath);
         shell_exec("echo -------------------------------------");
-        shell_exec("echo updating values");
-        $env = preg_replace('/^(CRAFT_DB_DRIVER=).*/m', '${1}' . $CRAFT_DB_DRIVER, $env);
-        $env = preg_replace('/^(CRAFT_DB_SERVER=).*/m', '${1}' . $CRAFT_DB_SERVER, $env);
-        $env = preg_replace('/^(CRAFT_DB_PORT=).*/m', '${1}' . $CRAFT_DB_PORT, $env);
-        $env = preg_replace('/^(CRAFT_DB_DATABASE=).*/m', '${1}' . $CRAFT_DB_DATABASE, $env);
-        $env = preg_replace('/^(CRAFT_DB_USER=).*/m', '${1}' . $CRAFT_DB_USER, $env);
-        $env = preg_replace('/^(CRAFT_DB_PASSWORD=).*/m', '${1}' . $CRAFT_DB_PASSWORD, $env);
-        $env = preg_replace('/^(CRAFT_DB_SCHEMA=).*/m', '${1}' . $CRAFT_DB_SCHEMA, $env);
-        $env = preg_replace('/^(CRAFT_DB_TABLE_PREFIX=).*/m', '${1}' . $CRAFT_DB_TABLE_PREFIX, $env);
+        shell_exec("echo removing old values");
+        // Remove all CRAFT_DB_* lines
+        $env = preg_replace('/^CRAFT_DB_.*$/m', '', $env);
+        // Remove any resulting blank lines
+        $env = preg_replace('/^[ \t]*\r?\n/m', '', $env);
+        shell_exec("echo appending new values");
+        $env .= "\nCRAFT_DB_DRIVER=$CRAFT_DB_DRIVER";
+        $env .= "\nCRAFT_DB_SERVER=$CRAFT_DB_SERVER";
+        $env .= "\nCRAFT_DB_PORT=$CRAFT_DB_PORT";
+        $env .= "\nCRAFT_DB_DATABASE=$CRAFT_DB_DATABASE";
+        $env .= "\nCRAFT_DB_USER=$CRAFT_DB_USER";
+        $env .= "\nCRAFT_DB_PASSWORD=$CRAFT_DB_PASSWORD";
+        $env .= "\nCRAFT_DB_SCHEMA=$CRAFT_DB_SCHEMA";
+        $env .= "\nCRAFT_DB_TABLE_PREFIX=$CRAFT_DB_TABLE_PREFIX\n";
         shell_exec("echo -------------------------------------");
         shell_exec("echo Saving configuration");
         file_put_contents("$env_filepath", $env);
@@ -131,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         shell_exec("rm /var/www/html/composer.lock");
 
 
-        echo(json_encode(true));
+        echo (json_encode(true));
     }
 
 
@@ -147,30 +152,28 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
         $message = exec("cd $craftproject; php craft install/craft --email $mail --username $username --password $password --site-name $sitename --site-url $siteurl --language $language", $output);
-        echo(json_encode($output));
+        echo (json_encode($output));
     }
 
 
 
     //this restarts the web server and writes the craft project name (given in $data[restrt])to file
-    if (isset($data ["restart"])) {
-        file_put_contents("/var/www/html/setup",$data ["restart"]);
+    if (isset($data["restart"])) {
+        file_put_contents("/var/www/html/setup", $data["restart"]);
         shell_exec("sudo /etc/init.d/apache2 restart");
     }
 
     //this figures out what the craft installation was named and restores it
-    if (isset($data ["restore"])) {
+    if (isset($data["restore"])) {
         $content = scandir("/var/www/html");
         foreach ($content as $entry) {
             if (is_dir($entry) && $entry != "." && $entry != ".." && $entry != "vendor") {
                 $restoreprojectname = $entry;
             }
         }
-        file_put_contents("/var/www/html/setup",$restoreprojectname);
+        file_put_contents("/var/www/html/setup", $restoreprojectname);
         shell_exec("sudo /etc/init.d/apache2 restart");
     }
-
-
 }
 
 
@@ -178,7 +181,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 //-------SECTION-----web-pages------Method:NOT>POST----------
 // the web pages were created with the help of chatgpt
-function welcomepage(){
+function welcomepage()
+{
     echo <<<WELCOMEPAGE
     <style>
     body {
@@ -337,7 +341,8 @@ function welcomepage(){
     WELCOMEPAGE;
 }
 
-function projectsetup(){
+function projectsetup()
+{
     echo <<<PROJECTSETUP
     <style>
         body {
@@ -537,7 +542,8 @@ function projectsetup(){
     PROJECTSETUP;
 }
 
-function projectconfig(){
+function projectconfig()
+{
     echo <<<PROJECTCONFIG
             <style>
                 body {
@@ -765,7 +771,8 @@ function projectconfig(){
     PROJECTCONFIG;
 }
 
-function finished(){
+function finished()
+{
     echo <<<FINISHEDPAGE
     <style>
         body {
@@ -846,7 +853,8 @@ function finished(){
     FINISHEDPAGE;
 }
 
-function error(){
+function error()
+{
     echo <<<ERROR
     <!DOCTYPE html>
     <html lang="en">
@@ -938,7 +946,7 @@ function error(){
 
 if ($_SERVER['REQUEST_METHOD'] != "POST") {
     //print the html head
-    echo /*html*/'
+    echo /*html*/ '
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -1037,11 +1045,11 @@ if ($_SERVER['REQUEST_METHOD'] != "POST") {
             return true;
         }
         ';
-if (isset($_GET['projectname'])) {
-    echo("projectname='" . $_GET['projectname'] . "'");
-}
+    if (isset($_GET['projectname'])) {
+        echo ("projectname='" . $_GET['projectname'] . "'");
+    }
 
-echo '
+    echo '
 
     </script>
 
@@ -1068,11 +1076,9 @@ echo '
             break;
     }
 
-    echo /*html*/'
+    echo /*html*/ '
         
     </body>
     </html>
     ';
 }
-
-?>
