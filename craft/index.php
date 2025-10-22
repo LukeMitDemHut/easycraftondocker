@@ -150,9 +150,35 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $siteurl = "http://localhost:3380";
         $language = $data["language"];
 
+        $esc_craftproject = escapeshellarg($craftproject);
+        $esc_mail = escapeshellarg($mail);
+        $esc_username = escapeshellarg($username);
+        $esc_password = escapeshellarg($password);
+        $esc_sitename = escapeshellarg($sitename);
+        $esc_siteurl = escapeshellarg($siteurl);
+        $esc_language = escapeshellarg($language);
 
-        $message = exec("cd $craftproject; php craft install/craft --email $mail --username $username --password $password --site-name $sitename --site-url $siteurl --language $language", $output);
-        echo (json_encode($output));
+        $cmd = sprintf(
+            'cd %s; php craft install/craft --email %s --username %s --password %s --site-name %s --site-url %s --language %s',
+            $esc_craftproject,
+            $esc_mail,
+            $esc_username,
+            $esc_password,
+            $esc_sitename,
+            $esc_siteurl,
+            $esc_language
+        );
+
+        // run the command and capture output and return code
+        $output = [];
+        $returnVar = 0;
+        exec($cmd, $output, $returnVar);
+
+        // return output and exit status for debugging on the client side
+        echo json_encode([
+            'output' => $output,
+            'return' => $returnVar
+        ]);
     }
 
 
@@ -1046,7 +1072,7 @@ if ($_SERVER['REQUEST_METHOD'] != "POST") {
         }
         ';
     if (isset($_GET['projectname'])) {
-        echo ("projectname='" . $_GET['projectname'] . "'");
+        echo ("var projectname = " . json_encode($_GET['projectname']) . ";");
     }
 
     echo '
