@@ -9,7 +9,15 @@ FROM php:8.2-apache
 # set the php max upload size to 32mb and max exec time to 600
 RUN echo "upload_max_filesize = 32M" >> /usr/local/etc/php/php.ini && \
     echo "post_max_size = 32M" >> /usr/local/etc/php/php.ini && \
-    echo "max_execution_time = 600" >> /usr/local/etc/php/php.ini
+    echo "max_execution_time = 600" >> /usr/local/etc/php/php.ini && \
+    echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini && \
+    echo "realpath_cache_size = 4096K" >> /usr/local/etc/php/php.ini && \
+    echo "realpath_cache_ttl = 600" >> /usr/local/etc/php/php.ini && \
+    echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini && \
+    echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini && \
+    echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/opcache.ini && \
+    echo "opcache.revalidate_freq=60" >> /usr/local/etc/php/conf.d/opcache.ini && \
+    echo "opcache.validate_timestamps=1" >> /usr/local/etc/php/conf.d/opcache.ini
 
 #installing dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,6 +36,9 @@ RUN a2enmod rewrite
 # installing php extensions
 RUN docker-php-ext-configure bcmath && \
     docker-php-ext-install bcmath curl intl mbstring pdo pdo_mysql zip
+
+# optimizing the image
+RUN docker-php-ext-install opcache
 
 # installing and enable imgick
 RUN pecl install imagick && \
