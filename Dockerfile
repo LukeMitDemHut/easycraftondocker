@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libmagickwand-dev \
     libzip-dev \
+    libpng-dev \
     --no-install-recommends
 
 # enable rewrite
@@ -35,7 +36,7 @@ RUN a2enmod rewrite
 
 # installing php extensions
 RUN docker-php-ext-configure bcmath && \
-    docker-php-ext-install bcmath curl intl mbstring pdo pdo_mysql zip
+    docker-php-ext-install bcmath curl intl mbstring pdo pdo_mysql zip gd
 
 # optimizing the image
 RUN docker-php-ext-install opcache
